@@ -1,5 +1,5 @@
 '''
-This file provides all necesary functions for TDomino.
+This file provides all necesary functions for TDomino on local play.
 
 DATA DESIGN
     Domino TILES are touples.
