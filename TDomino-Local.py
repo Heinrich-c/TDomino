@@ -55,26 +55,26 @@ def playToLine(pos:str , tile_ind:int , hand:list):
         LINE.append(hand.pop(tile_ind))
 
 # FUNCTION checkLine :
-def checkLine(pos:str , tile:tuple)->tuple:
+def checkLine(pos:str , tile:tuple)->list:
     ''' Given a LINE position and a tile, checks if the tile can be placed.
-    Returns a boolean tuple, one value for if the tile can be placed, another for if it needs
+    Returns a boolean list, one value for if the tile can be placed, another for if it needs
     to be flipped'''
     if pos == "L":
         LINE_tile = LINE[0]
         if tile[1] == LINE_tile[0]:
-            return (True,False)
+            return [True,False]
         elif tile[0] == LINE_tile[0]:   # If flipped 
-            return (True,True)
+            return [True,True]
         else:   
-            return (False,False)    # Not valid
+            return [False,False]    # Not valid
     else:   # Same with "R"
         LINE_tile = LINE[-1]
         if tile[0] == LINE_tile[1]:
-            return (True,False)
+            return [True,False]
         elif tile[1] == LINE_tile[1]:
-            return (True,True)
+            return [True,True]
         else:
-            return (False,False)
+            return [False,False]
 
 # FUNCTION flipTile :
 def flipTile(tile_ind:int , hand:list):
@@ -109,9 +109,26 @@ def printTurn():
     else:
         print("2ND PLAYER TURN")
 
+# FUNCTION printOptions:
 def printOptions():
     ''' Procedure for printing the player´s options'''
-    print("1) L (Tile) /t 2) R (Tile) /t 3) D ")
+    print("1) Add Tile to Left \t 2) Add Tile to Right \t 3) Draw Tile ")
+
+# FUNCTION optionHandler:
+def optionHandler()->int:
+    ''' Procedure for receiving player's option'''
+    opt = -1 # Initializer
+    while opt < 1 or opt > 3 :
+        opt = int(input())
+    return opt
+
+# FUNCTION selectorHandler: 
+def selectorHandler(hand:list)->int:
+    ''' Procedure for receiving player´s selection'''
+    selector = len(hand) + 1 # Initializer
+    while selector >= len(hand):
+        selector = int(input("Enter tile index: "))
+    return selector
 
 # Main loop
 def main():
@@ -122,20 +139,66 @@ def main():
     genHand(HAND_1)
     genHand(HAND_2)
     while WIN == False: 
+        #### FIRST TURN ONLY SECTION
         if first_turn == True: 
             printTurn()# Print "1ST PLAYER TURN"
-            print_TileList(HAND_1)# Print first player´s hand
-            # Print Options
-            # Give input
-            playToLine()# Call playToLine, end instance
+            print_TileList(HAND_1)
+            printOptions()
+            inputHandler(HAND_1)
+            # Store inputs
+            opt = optionHandler()
+            tile_selector = selectorHandler()
+            # Input result handling
+            if opt < 3: 
+                playToLine("L",tile_selector,HAND_1)
+                first_turn = False # Ends first turn
+            else:
+                if STOCK != []:
+                    drawToHand(choice(range(0,len(STOCK)-1)),HAND_1)
+                    # Repeats the first turn loop
+                else: 
+                    print("Stock is empty. You can´t draw anymore tiles.")
+                    # Repeats the first turn loop
+        #### REMAINING TURNS
         else:
-            # Call function to decide and print who´s turn is
-            # Print player´s hand
-            # valid? = False
-            # enter another While loop:
-                # Print Options
-                # Give input
-                # Store input in variables
+            printTurn() # Call function to decide and print who´s turn is
+            if turn > 0:
+                current_hand = HAND_1
+            else:
+                current_hand = HAND_2
+            print_TileList(current_hand)# Print player´s hand
+            valid = False # Flag for valid move
+            while not valid :
+                printOptions()  # Print Options
+                opt = optionHandler()
+                tile_selector = selectorHandler()
+                # Input result handling
+                if opt < 3: # Playing move
+                    if opt == 1:
+                        pos = "L"
+                    else: 
+                        pos = "R"
+                    check = checkLine(pos,current_hand[tile_selector])
+                    if check[0]: # Valid move
+                        if check[1]: # Flipping needed
+                            flipTile(tile_selector,current_hand)
+                        playToLine(pos,tile_ind)
+                        valid = True
+                    else: # Unvalid move
+                        print("This move is not valid.")
+                        # Repeats loop until it gets a valid move
+                else: 
+                    drawing_turn = False
+                        if STOCK !=[]:
+                            drawToHand(choice(range(0,len(STOCK)-1)),current_hand)
+                            print("Drawed.")
+                        else:
+                            print("Stock is empty. You can´t draw anymore tiles.")
+                        drawing_turn = True
+
+
+
+                    
                 # If options are to play:
                     # Call checkLine, if it´s valid, end loop
                     # (by changing valid? flag to True)
@@ -158,7 +221,3 @@ def main():
             # If Hand 1 or Hand 2 is empty,
             # print "GAME ENDED, WINNER : (player)"
             # set WIN flag to true
-
-        
-
-
