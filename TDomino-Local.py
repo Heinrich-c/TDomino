@@ -101,10 +101,10 @@ def print_TileList(tilelist:list):
     print("") # Optional, prints the next line
 
 # FUNCTION printTurn:
-def printTurn():
+def printTurn(turn):
     ''' Procedure for checking TURN flag and printing the
     corresponding turn'''
-    if TURN > 0:
+    if turn > 0:
         print("1ST PLAYER TURN")
     else:
         print("2ND PLAYER TURN")
@@ -129,29 +129,37 @@ def selectorHandler(hand:list)->int:
     while selector >= len(hand):
         selector = int(input("Enter tile index: "))
     return selector
+# FUNCTION passHandler:
+def passHandler()->str:
+    ''' Procedure for receiving player's yes or no option to pass their turn'''
+    opt = ' '
+    while opt !='Y' or opt !='N':
+        opt = input("Do you want to pass your turn? [Y/N]: ")
+    return opt
 
 # Main loop
 def main():
     WIN = False 
     TURN = 1
     first_turn = True
+    drawing_turn = False
     genStock()
     genHand(HAND_1)
     genHand(HAND_2)
-    while WIN == False: 
+    while not WIN: 
         #### FIRST TURN ONLY SECTION
         if first_turn == True: 
-            printTurn()# Print "1ST PLAYER TURN"
+            printTurn(TURN)# Print "1ST PLAYER TURN"
             print_TileList(HAND_1)
             printOptions()
-            inputHandler(HAND_1)
             # Store inputs
             opt = optionHandler()
-            tile_selector = selectorHandler()
+            tile_selector = selectorHandler(HAND_1)
             # Input result handling
             if opt < 3: 
                 playToLine("L",tile_selector,HAND_1)
                 first_turn = False # Ends first turn
+                TURN = -1
             else:
                 if STOCK != []:
                     drawToHand(choice(range(0,len(STOCK)-1)),HAND_1)
@@ -161,18 +169,18 @@ def main():
                     # Repeats the first turn loop
         #### REMAINING TURNS
         else:
-            printTurn() # Call function to decide and print who´s turn is
-            if turn > 0:
+            printTurn(TURN) # Call function to decide and print who´s turn is
+            if TURN > 0:
                 current_hand = HAND_1
             else:
                 current_hand = HAND_2
-            print_TileList(current_hand)# Print player´s hand
-            valid = False # Flag for valid move
+            print_TileList(current_hand)    # Print player´s hand
+            valid = False   # Flag for valid move
             while not valid :
                 printOptions()  # Print Options
                 opt = optionHandler()
                 tile_selector = selectorHandler()
-                # Input result handling
+                ## Input result handling
                 if opt < 3: # Playing move
                     if opt == 1:
                         pos = "L"
@@ -188,13 +196,30 @@ def main():
                         print("This move is not valid.")
                         # Repeats loop until it gets a valid move
                 else: 
-                    drawing_turn = False
-                        if STOCK !=[]:
-                            drawToHand(choice(range(0,len(STOCK)-1)),current_hand)
-                            print("Drawed.")
-                        else:
-                            print("Stock is empty. You can´t draw anymore tiles.")
+                    if STOCK !=[]:
+                        drawToHand(choice(range(0,len(STOCK)-1)),current_hand)
+                        print("Drawed.")
                         drawing_turn = True
+                        valid = True
+                    else:
+                        print("Stock is empty. You can´t draw anymore tiles.")
+                        if passHandler() == 'N':
+                            drawing_turn = True
+                            valid = True
+                            # Else, drawing_turn keeps False
+                ## End input result handling
+            if not drawing_turn:
+                TURN = TURN * -1
+            if HAND_1 == []:
+                print("GAME ENDED, WINNER : PLAYER 1")
+                Win == True
+            elif HAND_2 == []:
+                print("GAME ENDED, WINNER : PLAYER 2")
+                Win == True
+
+
+
+                        
 
 
 
