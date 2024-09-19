@@ -174,14 +174,16 @@ def main():
                 current_hand = HAND_1
             else:
                 current_hand = HAND_2
+            print_TileList(LINE)
+            print("\n")
             print_TileList(current_hand)    # Print player´s hand
             valid = False   # Flag for valid move
             while not valid :
                 printOptions()  # Print Options
                 opt = optionHandler()
-                tile_selector = selectorHandler()
+                tile_selector = selectorHandler(current_hand)
                 ## Input result handling
-                if opt < 3: # Playing move
+                if opt < 3: # Playing move1
                     if opt == 1:
                         pos = "L"
                     else: 
@@ -190,7 +192,7 @@ def main():
                     if check[0]: # Valid move
                         if check[1]: # Flipping needed
                             flipTile(tile_selector,current_hand)
-                        playToLine(pos,tile_ind)
+                        playToLine(pos,tile_selector,current_hand)
                         valid = True
                     else: # Unvalid move
                         print("This move is not valid.")
@@ -246,3 +248,5 @@ def main():
             # If Hand 1 or Hand 2 is empty,
             # print "GAME ENDED, WINNER : (player)"
             # set WIN flag to true
+
+main()
